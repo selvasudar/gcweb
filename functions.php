@@ -1,6 +1,76 @@
 <?php
 
 define('ASSET_PATH', get_template_directory_uri() . '/assets');
+// define('VERSION', $GLOBALS['version_number']);
+
+// Define Constants
+define('TD_URI', get_template_directory_uri());
+define('TD_PATH', get_template_directory());
+define('FONTS_URI', get_template_directory_uri() . '/assets/fonts');
+define('STYLES_URI', get_template_directory_uri() . '/assets/css');
+// define('RESOURCES_URI', get_template_directory_uri() . '/resources');
+define('ICON_URI', get_template_directory_uri() . '/assets/icons');
+define('IMAGES_URI', get_template_directory_uri() . '/assets/images');
+define('SCRIPTS_URI', get_template_directory_uri() . '/assets/js');
+$domain = $_SERVER['HTTP_HOST'];
+define('DOMAIN', $domain);
+define('COOKIE_EXPIRY', time() + (86400 * 365));
+
+
+/** Add Bootstrap Nav walker to customize menu's **/
+if (!file_exists(TD_PATH . '/includes/class-kf-bootstrap-navwalker.php')) {
+	// file does not exist... return an error.
+	return new WP_Error('class-wp-bootstrap-navwalker-missing', __('It appears the class-wp-bootstrap-navwalker.php file may be missing.', 'wp-bootstrap-navwalker'));
+} else {
+	// file exists... require it.
+	require_once TD_PATH . '/includes/class-kf-bootstrap-navwalker.php';
+}
+
+add_theme_support('menus');
+function register_my_menus() {
+  register_nav_menus(
+    array(
+      'primary' => __('Primary Menu'),
+    )
+  );
+}
+add_action('after_setup_theme', 'register_my_menus');
+
+function add_nav_link_class($atts, $item, $args) {
+    if ($args->theme_location === 'primary') {
+        // Is this a submenu item?
+        $is_sub_menu = $item->menu_item_parent != 0;
+
+        // Is this a parent with children (dropdown)?
+        $has_children = in_array('menu-item-has-children', $item->classes);
+
+        // Base class
+        if ($is_sub_menu) {
+            $class = 'dropdown-item';
+        } else {
+            $class = 'nav-item nav-link';
+        }
+
+        // Add dropdown-toggle for top-level items with children
+        if (!$is_sub_menu && $has_children) {
+            $class .= ' dropdown-toggle';
+            $atts['data-bs-toggle'] = 'dropdown';
+            $atts['aria-expanded'] = 'false';
+            $atts['role'] = 'button';
+        }
+
+        // Add active class
+        if (in_array('current-menu-item', $item->classes) || in_array('current_page_item', $item->classes)) {
+            $class .= ' active';
+        }
+
+        $atts['class'] = $class;
+    }
+
+    return $atts;
+}
+add_filter('nav_menu_link_attributes', 'add_nav_link_class', 10, 3);
+
 
 function gcweb_enqueue_assets() {
     // CSS
