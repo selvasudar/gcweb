@@ -1,3 +1,4 @@
+<?php echo do_shortcode('[chatbot_ui]'); ?>
 <!-- Footer Start -->
 <footer class="container-fluid footer py-5 wow fadeIn" data-wow-delay="0.2s">
     <div class="container py-5">
